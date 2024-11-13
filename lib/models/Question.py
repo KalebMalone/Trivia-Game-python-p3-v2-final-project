@@ -1,4 +1,4 @@
-from models.__init__ import CONN #import package
+from __init__ import CONN #import package
 import sqlite3
 class Question:
     """Represents a trivia question in the database."""
