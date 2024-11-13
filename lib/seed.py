@@ -1,4 +1,4 @@
-from models.category import Category
+from lib.models.Category import Category
 from lib.models.Question import Question
 
 def drop_tables():

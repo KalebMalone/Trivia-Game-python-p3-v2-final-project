@@ -1,4 +1,4 @@
-from models.__init__ import CONN
+from __init__ import CONN #import package
 import sqlite3
 
 class Question:
