@@ -1,75 +1,103 @@
-# Import the sqlite3 library to work with an SQLite database.
-import sqlite3
+from models.__init__ import CONN
 
-# Establish a connection to the SQLite database named 'database.db'.
-# If the file doesn't exist, it will be created.
-CONN = sqlite3.connect('database.db')
-
-# Create a cursor object to interact with the database.
-CURSOR = CONN.cursor()
-
-# Define a class to represent the 'Categories' table in the database.
 class Category:
-    # Store all category instances in a class-level dictionary.
-    all = {}
-
-    # Initialize a new category instance with a name and optional ID.
     def __init__(self, name, id=None):
-        self.id = id  # The ID of the category, if it exists in the database.
-        self.name = name  # The name of the category.
-        
-    @classmethod
-    def create_table(cls):
-        """Create the categories table if it doesn't exist."""
-        try:
-            with CONN:
-                # Execute SQL to create the 'categories' table with an 'id' and 'name'.
-                # 'id' is the primary key and auto-increments.
-                # 'name' is unique and must not be null.
-                CURSOR.execute('''
-                    CREATE TABLE IF NOT EXISTS categories (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL UNIQUE
-                    );
-                ''')
-        except Exception as e:
-            # Print any errors that occur when creating the table.
-            print(f"Error creating table: {e}")
+        self.id = id
+        self.name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value_to_validate):
+        if not isinstance(value_to_validate, str):
+            raise TypeError("Name must be a string.")
+        elif len(value_to_validate) < 1:
+            raise ValueError("Name must be at least 1 character long.")
+        elif hasattr(self, "_name"):
+            raise AttributeError("Name cannot be changed after initialization.")
+        self._name = value_to_validate
+
+    @staticmethod
+    def create_table():
+        with CONN:
+            cursor = CONN.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS categories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL UNIQUE
+                )
+            ''')
 
     @classmethod
     def drop_table(cls):
-        """Drop the categories table if it exists."""
-        try:
-            with CONN:
-                # Execute SQL to drop the 'categories' table if it exists.
-                CURSOR.execute('DROP TABLE IF EXISTS categories')
-        except Exception as e:
-            # Print any errors that occur when dropping the table.
-            print(f"Error dropping table: {e}")
+        with CONN:
+            cursor = CONN.cursor()
+            cursor.execute('DROP TABLE IF EXISTS categories')
 
     @classmethod
     def create(cls, name):
-        """Create a new category in the database."""
-        # Create a new category instance.
         new_category = cls(name)
-        # Save the instance to the database.
         new_category.save()
         return new_category
 
     def save(self):
-        """Save the current instance to the database."""
-        try:
-            with CONN:
-                if self.id is None:
-                    # If the category doesn't have an ID, insert it into the database.
-                    CURSOR.execute('INSERT INTO categories (name) VALUES (?)', (self.name,))
-                    # Set the instance's ID to the last inserted row's ID.
-                    self.id = CURSOR.lastrowid
-                else:
-                    # If the category already has an ID, update the existing record.
-                    CURSOR.execute('UPDATE categories SET name = ? WHERE id = ?', (self.name, self.id))
-        except Exception as e:
-            # Print any errors that occur when saving the category.
-            print(f"Error saving category: {e}")
-    
-polictics = Categories("politics")
+        with CONN:
+            cursor = CONN.cursor()
+            if self.id is None:
+                cursor.execute('INSERT INTO categories (name) VALUES (?)', (self.name,))
+                self.id = cursor.lastrowid
+            else:
+                cursor.execute('UPDATE categories SET name = ? WHERE id = ?', (self.name, self.id))
+
+    @classmethod
+    def get_all(cls):
+        cursor = CONN.cursor()
+        cursor.execute('SELECT * FROM categories')
+        rows = cursor.fetchall()
+        return [cls(row[1], row[0]) for row in rows]
+
+    @classmethod
+    def find_by_id(cls, category_id):
+        cursor = CONN.cursor()
+        cursor.execute('SELECT * FROM categories WHERE id = ?', (category_id,))
+        row = cursor.fetchone()
+        return cls(row[1], row[0]) if row else None
+
+    @classmethod
+    def find_by_name(cls, name):
+        cursor = CONN.cursor()
+        cursor.execute('SELECT * FROM categories WHERE name = ?', (name,))
+        row = cursor.fetchone()
+        return cls(row[1], row[0]) if row else None
+
+    @staticmethod
+    def delete(category_id):
+        with CONN:
+            cursor = CONN.cursor()
+            cursor.execute('DELETE FROM categories WHERE id = ?', (category_id,))
+
+    def category_questions(self):
+        from models.Question import Question
+        return [question for question in Question.get_all() if question.category_id == self.id]
+
+
+if __name__ == "__main__":
+    Category.create_table()
+
+    new_category = Category.create('Science')
+
+    all_categories = Category.get_all()
+    print(all_categories)
+
+    category = Category.find_by_id(1)
+    print(category)
+
+    category = Category.find_by_name('Science')
+    print(category)
+
+    category_to_update = Category('Mathematics', id=1)
+    category_to_update.save()
+
+    Category.delete(1)
