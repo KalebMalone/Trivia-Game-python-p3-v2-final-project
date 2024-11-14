@@ -1,5 +1,5 @@
-from __init__ import CONN, CURSOR
-from Question import Question
+from models import CONN, CURSOR
+from models.Question import Question
 
 class User:
     def __init__(self, name, id=None, score=0):

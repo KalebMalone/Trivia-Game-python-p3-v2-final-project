@@ -1,5 +1,5 @@
 import sqlite3
-from __init__ import CONN  # Assuming CONN is properly defined in models
+from models import CONN
 
 class Question:
     def __init__(self, question_text, answer, category_id, id=None):
@@ -68,5 +68,5 @@ class Question:
         return [cls(row[1], row[2], row[3], row[0]) for row in rows]
 
 if __name__ == "__main__":
-    import ipdb; ipdb.set_trace()  # Start debugging from here
+    import ipdb; ipdb.set_trace()
 
