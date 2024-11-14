@@ -1,4 +1,4 @@
-from __init__ import CONN #import package
+from models.__init__ import CONN #import package
 
 class Question:
     def __init__(self, question_text, answer, category_id, id=None):
@@ -9,7 +9,7 @@ class Question:
 
     @classmethod
     def create_table(cls):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS questions (
@@ -20,13 +20,17 @@ class Question:
                     FOREIGN KEY (category_id) REFERENCES categories (id)
                 )
             ''')
+        except Exception as e: 
+            return e
 
     @classmethod
     def drop_table(cls):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             cursor.execute('DROP TABLE IF EXISTS questions')
-
+        except Exception as e: 
+            return e
+ 
     @classmethod
     def create(cls, question_text, answer, category_id):
         new_question = cls(question_text, answer, category_id)
@@ -34,7 +38,7 @@ class Question:
         return new_question
 
     def save(self):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             if self.id is None:
                 cursor.execute('INSERT INTO questions (question_text, answer, category_id) VALUES (?, ?, ?)',
@@ -43,6 +47,10 @@ class Question:
             else:
                 cursor.execute('UPDATE questions SET question_text = ?, answer = ?, category_id = ? WHERE id = ?',
                             (self.question_text, self.answer, self.category_id, self.id))
+            CONN.commit() #in any method that modifies
+        except Exception as e: 
+            CONN.rollback()
+            return e
 
     @classmethod
     def get_all(cls):
@@ -57,3 +65,5 @@ class Question:
         cursor.execute('SELECT * FROM questions WHERE category_id = ?', (category_id,))
         rows = cursor.fetchall()
         return [cls(row[1], row[2], row[3], row[0]) for row in rows]
+    
+# import ipdb; ipdb.set_trace()
