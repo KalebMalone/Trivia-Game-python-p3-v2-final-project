@@ -1,4 +1,4 @@
-from __init__ import CONN
+from models.__init__ import CONN
 
 class Category:
     def __init__(self, name, id=None):
@@ -50,13 +50,17 @@ class Category:
             return e
 
     def save(self):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             if self.id is None:
                 cursor.execute('INSERT INTO categories (name) VALUES (?)', (self.name,))
                 self.id = cursor.lastrowid
             else:
                 cursor.execute('UPDATE categories SET name = ? WHERE id = ?', (self.name, self.id))
+            CONN.commit() #in any method that modifies a row(create, update, delete)
+        except Exception as e: 
+            CONN.rollback()
+            return e
 
     @classmethod
     def get_all(cls):
@@ -81,12 +85,16 @@ class Category:
 
     @staticmethod
     def delete(category_id):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             cursor.execute('DELETE FROM categories WHERE id = ?', (category_id,))
+            CONN.commit()
+        except Exception as e:
+            CONN.rollback() #in any method that modifies
+            return e
 
     def category_questions(self):
-        from Question import Question
+        from models.Question import Question
         return [question for question in Question.get_all() if question.category_id == self.id]
 
 
