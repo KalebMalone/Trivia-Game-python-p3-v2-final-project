@@ -13,7 +13,7 @@ class Category:
     def name(self, value_to_validate):
         if not isinstance(value_to_validate, str):
             raise TypeError("Name must be a string.")
-        elif len(value_to_validate) < 1:
+        elif not (value_to_validate):
             raise ValueError("Name must be at least 1 character long.")
         elif hasattr(self, "_name"):
             raise AttributeError("Name cannot be changed after initialization.")
@@ -21,35 +21,46 @@ class Category:
 
     @staticmethod
     def create_table():
-        with CONN:
+        try:
             cursor = CONN.cursor()
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS categories (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL UNIQUE
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL UNIQUE CHECK(name <> '')
                 )
             ''')
-
+        except Exception as e: 
+            return e 
+        
     @classmethod
     def drop_table(cls):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             cursor.execute('DROP TABLE IF EXISTS categories')
+        except Exception as e: 
+            return e 
 
     @classmethod
     def create(cls, name):
-        new_category = cls(name)
-        new_category.save()
-        return new_category
+        try: 
+            new_category = cls(name)
+            new_category.save()
+            return new_category
+        except Exception as e:
+            return e
 
     def save(self):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             if self.id is None:
                 cursor.execute('INSERT INTO categories (name) VALUES (?)', (self.name,))
                 self.id = cursor.lastrowid
             else:
                 cursor.execute('UPDATE categories SET name = ? WHERE id = ?', (self.name, self.id))
+            CONN.commit() #in any method that modifies a row(create, update, delete)
+        except Exception as e: 
+            CONN.rollback()
+            return e
 
     @classmethod
     def get_all(cls):
@@ -74,9 +85,13 @@ class Category:
 
     @staticmethod
     def delete(category_id):
-        with CONN:
+        try:
             cursor = CONN.cursor()
             cursor.execute('DELETE FROM categories WHERE id = ?', (category_id,))
+            CONN.commit()
+        except Exception as e:
+            CONN.rollback() #in any method that modifies
+            return e
 
     def category_questions(self):
         from models.Question import Question
@@ -84,20 +99,4 @@ class Category:
 
 
 if __name__ == "__main__":
-    Category.create_table()
-
-    new_category = Category.create('Science')
-
-    all_categories = Category.get_all()
-    print(all_categories)
-
-    category = Category.find_by_id(1)
-    print(category)
-
-    category = Category.find_by_name('Science')
-    print(category)
-
-    category_to_update = Category('Mathematics', id=1)
-    category_to_update.save()
-
-    Category.delete(1)
+    import ipdb; ipdb.set_trace()
