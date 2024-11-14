@@ -1,5 +1,4 @@
 from __init__ import CONN #import package
-import sqlite3
 
 class Question:
     def __init__(self, question_text, answer, category_id, id=None):
