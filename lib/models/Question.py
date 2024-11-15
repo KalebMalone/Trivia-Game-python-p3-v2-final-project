@@ -40,11 +40,6 @@ class Question:
         cursor = CONN.cursor()
         if self.id is None:
             cursor.execute('INSERT INTO questions (question_text, answer, category_id) VALUES (?, ?, ?)', 
-                        (self.question_text, self.answer, self.category_id))
-            self.id = cursor.lastrowid
-        else:
-            cursor.execute('UPDATE questions SET question_text = ?, answer = ?, category_id = ? WHERE id = ?',
-                        (self.question_text, self.answer, self.category_id, self.id))
         CONN.commit()
 
     @classmethod
