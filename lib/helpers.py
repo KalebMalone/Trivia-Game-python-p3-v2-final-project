@@ -12,11 +12,29 @@ def menu():
     print("0. Exit the program")
     print("1. Play a game")
     print("2. Reset game")
-    print("3. Delete User")
+    print("3. Delete User")  
+
+    choice = input("> ").strip()
+
+    if choice == "0":
+        exit_program()
+    elif choice == "1":
+        find_or_create_player()
+    elif choice == "2":
+        reset_game()
+    elif choice == "3":
+        delete_user()  
+    else:
+        print("Invalid choice")
+        menu()  
 
 def exit_program():
     console.print("Goodbye!", style="bold red")
     exit()
+    
+def reset_game():
+    console.print("Game has been reset", style="bold green")
+
 
 def find_or_create_player():
     name = input("Enter your name: ").strip()
@@ -35,17 +53,23 @@ def find_or_create_player():
         select_category(player)
 
 def delete_user():
-    name = input("Enter your name: ").strip()
+    name = input("Enter your name to delete your account: ").strip()
 
     if name.lower() in EXIT_WORDS:
         exit_program()
 
     player = User.find_name(name)
+
     if player:
-        player.delete()
-        console.print(f"{name} has been deleted.", style="bold red")
+        confirm = input(f"Are you sure you want to delete the user '{name}'? (y/n): ").strip().lower()
+        if confirm == 'y':
+            User.delete(player.id)  
+            console.print(f"The user '{name}' has been deleted.", style="bold red")
+        else:
+            console.print("User deletion canceled.", style="bold yellow")
     else:
-        console.print(f"Could not find {name}.", style="bold red")
+        console.print(f"Could not find user with name '{name}'.", style="bold red")
+
 
 def select_category(player):
     console.print("Select a category:", style="bold blue")
@@ -76,12 +100,12 @@ def next_question(player):
         console.print(f"Sorry, we couldn't find the category '{player.selected_category}'.", style="bold red")
         return
 
+    # Debugging: Check if questions are being fetched
     questions = category.category_questions()
 
-    # Check if there are more questions to display
     if player.current_question_index < len(questions):
         selected_question = questions[player.current_question_index]
-        console.print(selected_question.question_text, style="bold green")
+        console.print(f"Question: {selected_question.question_text}", style="bold green")
         user_answer = input("Answer (choose number): ").strip()
 
         if user_answer.lower() in EXIT_WORDS:
@@ -110,7 +134,7 @@ def check_answer(selected_question, user_answer, player):
         console.print(f"Incorrect! The correct answer was: {correct_answer}", style="bold red")
     
     player.increment_questions_answered()
-    player.current_question_index += 1  # Move to the next question
+    player.current_question_index += 1  
 
     next_question(player)
 
