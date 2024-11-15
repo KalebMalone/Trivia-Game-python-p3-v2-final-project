@@ -5,19 +5,11 @@ from rich.console import Console
 
 console = Console()
 
-EXIT_WORDS = ["0", "exit", "quit", "back"]
-
-def check_exit_words(input_value):
-    if input_value.lower() in EXIT_WORDS:
-        menu()
-
 def menu():
     console.print("Please select an option:", style="bold blue")
     print("0. Exit the program")
     print("1. Play a game")
     print("2. Reset game")
-    print("3. Delete User")
-    print("4. View All Users")
 
     choice = input("> ").strip()
 
@@ -28,22 +20,7 @@ def menu():
     elif choice == "2":
         reset_game()
     elif choice == "3":
-        delete_user()
-    elif choice == "4":
-        view_all_users()
-    else:
-        print("Invalid choice")
-        menu()
-
-def view_all_users():
-    users = User.get_all(True)
-    if users:
-        console.print("All Users:", style="bold green")
-        for user in users:
-            console.print(user)
-    else:
-        console.print("No users found.", style="bold red")
-
+      
 def exit_program():
     console.print("Goodbye!", style="bold red")
     exit()
@@ -53,15 +30,6 @@ def reset_game():
 
 
 def find_or_create_player():
-    # while True:
-    name = input("Enter your name: ").strip().lower()
-    check_exit_words(name)
-        # try:
-        #     temp_user = User(name)
-        #     temp_user._validate_name(name)
-        #     break
-        # except ValueError as e:
-        #     print(f"Invalid name: {e}")  
 
     player = User.find_name(name)
 
@@ -112,21 +80,16 @@ def select_category(player):
     else:
         player.selected_category = categories[choice]
         console.print(f"Category '{player.selected_category}' selected. Let's begin!", style="bold green")
-        player.current_question_index = 0
-        player.score = 0
-        next_question(player)
 
 def next_question(player):
     category = Category.find_by_name(player.selected_category)
     if category is None:
         console.print(f"Sorry, we couldn't find the category '{player.selected_category}'.", style="bold red")
         return
-
-    questions = category.category_questions()
-
+      
     if player.current_question_index < len(questions):
         selected_question = questions[player.current_question_index]
-        console.print(f"Question: {selected_question.question_text.replace(" %", ".")}", style="bold green")
+        
         user_answer = input("Answer (choose number): ").strip()
 
         if user_answer.lower() in EXIT_WORDS:
@@ -149,7 +112,7 @@ def check_answer(selected_question, user_answer, player):
     user_answer_text = answer_mapping.get(user_answer.strip(), "").lower()
 
     if user_answer_text == correct_answer:
-        player.score += 1
+      
         console.print("Correct!", style="bold green")
     else:
         console.print(f"Incorrect! The correct answer was: {correct_answer}", style="bold red")
@@ -161,7 +124,7 @@ def check_answer(selected_question, user_answer, player):
 
 def end_game(player):
     console.print("Congratulations! You've answered all 5 questions.", style="bold blue")
-    player.save()
+
     print("Would you like to:")
     print("1. Play again")
     print("2. Return to the main menu")
@@ -169,11 +132,6 @@ def end_game(player):
     choice = input("> ").strip()
 
     if choice == "1":
-        player.questions_answered = 0
-        player.current_question_index = 0
-        select_category(player)
-    elif choice == "2":
-        menu()
     else:
         print("Invalid choice, returning to the main menu.")
         menu()

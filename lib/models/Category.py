@@ -15,12 +15,6 @@ class Category:
                 name TEXT NOT NULL UNIQUE CHECK(name <> '')
             )
         ''')
-    @classmethod
-    def drop_table(cls):
-        cursor = CONN.cursor()
-        cursor.execute("""
-            DROP TABLE IF EXISTS categories
-        """)
 
     @classmethod
     def create(cls, name):

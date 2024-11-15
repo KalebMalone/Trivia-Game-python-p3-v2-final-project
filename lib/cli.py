@@ -5,6 +5,7 @@ from helpers import (
     delete_user
 )
 
+from seed import resetGame
 
 def main():
     while True:

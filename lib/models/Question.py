@@ -40,11 +40,7 @@ class Question:
         cursor = CONN.cursor()
         if self.id is None:
             cursor.execute('INSERT INTO questions (question_text, answer, category_id) VALUES (?, ?, ?)', 
-                        (self.question_text, self.answer, self.category_id))
-            self.id = cursor.lastrowid
-        else:
-            cursor.execute('UPDATE questions SET question_text = ?, answer = ?, category_id = ? WHERE id = ?',
-                        (self.question_text, self.answer, self.category_id, self.id))
+
         CONN.commit()
 
     @classmethod
@@ -53,10 +49,3 @@ class Question:
         cursor.execute('SELECT * FROM questions')
         rows = cursor.fetchall()
         return [cls(row[1], row[2], row[3], row[0]) for row in rows]
-
-    # @classmethod
-    # def get_by_category(cls, category_id):
-    #     cursor = CONN.cursor()
-    #     cursor.execute('SELECT * FROM questions WHERE category_id = ?', (category_id,))
-    #     rows = cursor.fetchall()
-    #     return [cls(row[1], row[2], row[3], row[0]) for row in rows]
