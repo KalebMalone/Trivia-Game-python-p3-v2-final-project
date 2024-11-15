@@ -6,7 +6,7 @@ from helpers import console
 def drop_tables():
     Question.drop_table()
     Category.drop_table()
-    
+    User.drop_table()
 def create_tables():
     Category.create_table()
     Question.create_table()
@@ -72,13 +72,3 @@ if __name__ == "__main__":
     science_q4 = Question.create("What gas do plants absorb from the atmosphere? 1. Oxygen % 2. Carbon Dioxide % 3. Nitrogen % 4. Helium %", "Carbon Dioxide", science.id)
     
     science_q5 = Question.create("What force keeps planets in orbit around the sun? 1. Electromagnetism % 2. Friction % 3. Gravity % 4. Tension %", "Gravity", science.id)
-
-def resetGame():
-    drop_tables()
-    create_tables()
-    seed_trivia_game()
-    console.print('Game has been reset', style="heading")
-
-if __name__ == "__main__":
-    resetGame()
-    print("banana")

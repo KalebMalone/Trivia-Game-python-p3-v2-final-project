@@ -54,9 +54,9 @@ class Question:
         rows = cursor.fetchall()
         return [cls(row[1], row[2], row[3], row[0]) for row in rows]
 
-    @classmethod
-    def get_by_category(cls, category_id):
-        cursor = CONN.cursor()
-        cursor.execute('SELECT * FROM questions WHERE category_id = ?', (category_id,))
-        rows = cursor.fetchall()
-        return [cls(row[1], row[2], row[3], row[0]) for row in rows]
+    # @classmethod
+    # def get_by_category(cls, category_id):
+    #     cursor = CONN.cursor()
+    #     cursor.execute('SELECT * FROM questions WHERE category_id = ?', (category_id,))
+    #     rows = cursor.fetchall()
+    #     return [cls(row[1], row[2], row[3], row[0]) for row in rows]

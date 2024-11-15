@@ -2,13 +2,14 @@ from models import CONN, CURSOR
 from models.Question import Question
 
 class User:
-    def __init__(self, name, id=None):
+    def __init__(self, name, score=0, id=None):
         self._name = name
         self.id = id
         self.questions_answered = 0
+        self.score = score
 
     def __str__(self):
-        return f"Player {self._name}: {self.id}"
+        return f"Player {self.name}: {self.score}"
 
     @property
     def name(self):
@@ -32,17 +33,16 @@ class User:
         CURSOR.execute("""
             CREATE TABLE IF NOT EXISTS players (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
+                name TEXT NOT NULL,
+                score INTEGER NOT NULL DEFAULT 0
             );
         """)
-        CONN.commit()
 
     @classmethod
     def drop_table(cls):
         CURSOR.execute("""
             DROP TABLE IF EXISTS players
         """)
-        CONN.commit()
 
     @classmethod
     def create(cls, name):
@@ -56,13 +56,16 @@ class User:
                 CURSOR.execute('INSERT INTO players (name) VALUES (?)', (self.name,))
                 self.id = CURSOR.lastrowid
             else:
-                CURSOR.execute('UPDATE players SET name = ? WHERE id = ?', (self.name, self.id))
+                CURSOR.execute('UPDATE players SET score = ? WHERE id = ?', (self.score, self.id,))
 
     @classmethod
-    def get_all(cls):
-        CURSOR.execute("SELECT * FROM players")
+    def get_all(cls, order=False):
+        if order:
+            CURSOR.execute("SELECT * FROM players ORDER BY score DESC")
+        else:
+            CURSOR.execute("SELECT * FROM players")
         rows = CURSOR.fetchall()
-        return [cls(row[1], row[0]) for row in rows]
+        return [cls(row[1], row[2], row[0]) for row in rows]
 
     @classmethod
     def find_name(cls, name):
