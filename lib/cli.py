@@ -5,6 +5,7 @@ from helpers import (
     delete_user
 )
 
+from seed import resetGame
 
 def main():
     while True:
@@ -14,10 +15,10 @@ def main():
             exit_program()
         elif choice == "1":
             find_or_create_player()
-        elif choice == "5":
+        elif choice == "2":
             delete_user()
         else:
             print("Invalid choice")
-        
+
 if __name__ == "__main__":
     main()

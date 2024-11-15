@@ -1,5 +1,7 @@
-from models.category import Category
+from models.Category import Category
 from models.Question import Question
+from models.User import User
+from helpers import console 
 
 def drop_tables():
     Question.drop_table()
@@ -8,6 +10,7 @@ def drop_tables():
 def create_tables():
     Category.create_table()
     Question.create_table()
+    User.create_table()
     
 def seed_trivia_game(): #create categories
     pop_culture = Category.create("Pop Culture")
@@ -60,12 +63,22 @@ if __name__ == "__main__":
 
 #science
 
-    science_q1 = Question.create("What is the chemical symbol for water? H2 % O2 % CO2 % H20 %", "H2O", science.id)
+    science_q1 = Question.create("What is the chemical symbol for water? 1. H2 % 2. O2 % 3. CO2 % 4. H20 %", "H2O", science.id)
 
-    science_q2 = Question.create("What planet is known as the 'Red Planet'? Venus % Jupiter % Mars % Saturn %", "Mars", science.id)
+    science_q2 = Question.create("What planet is known as the 'Red Planet'? 1. Venus % 2. Jupiter % 3. Mars % 4. Saturn %", "Mars", science.id)
 
     science_q3 = Question.create("What is the powerhouse of the cell? 1. Nucleus % 2. Mitochondria % 3. Ribosome % 4. Golgi apparatus %", "Mitochondria", science.id)
     
     science_q4 = Question.create("What gas do plants absorb from the atmosphere? 1. Oxygen % 2. Carbon Dioxide % 3. Nitrogen % 4. Helium %", "Carbon Dioxide", science.id)
     
     science_q5 = Question.create("What force keeps planets in orbit around the sun? 1. Electromagnetism % 2. Friction % 3. Gravity % 4. Tension %", "Gravity", science.id)
+
+def resetGame():
+    drop_tables()
+    create_tables()
+    seed_trivia_game()
+    console.print('Game has been reset', style="heading")
+
+if __name__ == "__main__":
+    resetGame()
+    print("banana")
