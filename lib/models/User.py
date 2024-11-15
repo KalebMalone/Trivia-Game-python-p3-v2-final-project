@@ -77,7 +77,8 @@ class User:
         return cls(row[1], row[0]) if row else None
 
     @classmethod
-    def delete(user_id):
+    def delete(cls, user_id):
+        """Delete a user from the database by ID."""
         with CONN:
             CURSOR.execute("DELETE FROM players WHERE id = ?", (user_id,))
 
